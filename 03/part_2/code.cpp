@@ -8,7 +8,7 @@ size_t calculate_position(const std::array<std::array<size_t, 50>, 50> & matrix,
 size_t go_up(std::array<std::array<size_t, 50>, 50> & matrix, size_t i, size_t j, size_t threshold);
 
 size_t go_right(std::array<std::array<size_t, 50>, 50> & matrix, size_t i, size_t j, size_t threshold) {
-  while(matrix[i][j - 1] == 0) {
+  while(matrix[i][j - 1] != 0) {
     matrix[i][j] = calculate_position(matrix, i, j);
     if (threshold < matrix[i][j]) {
       return matrix[i][j];
@@ -20,7 +20,7 @@ size_t go_right(std::array<std::array<size_t, 50>, 50> & matrix, size_t i, size_
 }
 
 size_t go_down(std::array<std::array<size_t, 50>, 50> & matrix, size_t i, size_t j, size_t threshold) {
-  while(matrix[i + 1][j] == 0) {
+  while(matrix[i + 1][j] != 0) {
     matrix[i][j] = calculate_position(matrix, i, j);
     if (threshold < matrix[i][j]) {
       return matrix[i][j];
@@ -32,7 +32,7 @@ size_t go_down(std::array<std::array<size_t, 50>, 50> & matrix, size_t i, size_t
 }
 
 size_t go_left(std::array<std::array<size_t, 50>, 50> & matrix, size_t i, size_t j, size_t threshold) {
-  while(matrix[i][j + 1] == 0) {
+  while(matrix[i][j + 1] != 0) {
     matrix[i][j] = calculate_position(matrix, i, j);
     if (threshold < matrix[i][j]) {
       return matrix[i][j];
@@ -44,7 +44,7 @@ size_t go_left(std::array<std::array<size_t, 50>, 50> & matrix, size_t i, size_t
 }
 
 size_t go_up(std::array<std::array<size_t, 50>, 50> & matrix, size_t i, size_t j, size_t threshold) {
-  while(matrix[i - 1][j] == 0) {
+  while(matrix[i - 1][j] != 0) {
     matrix[i][j] = calculate_position(matrix, i, j);
     if (threshold < matrix[i][j]) {
       return matrix[i][j];
