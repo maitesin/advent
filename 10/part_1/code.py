@@ -1,6 +1,7 @@
 import sys
 
-LENGHT = 255
+LENGHT = 256
+#LENGHT = 5
 
 def main(line):
     lenghts = [int(x) for x in line.split(',')]
@@ -8,28 +9,24 @@ def main(line):
     pos = 0
     skip = 0
     for lenght in lenghts:
-        if lenght != 1:
-            original = process(original, pos, (pos+lenght)%LENGHT)
+        if lenght != 1 and lenght != 0:
+            original = process(original, pos, lenght)
         pos = (pos + lenght + skip)%LENGHT
         skip = skip + 1
     print(original[0]*original[1])
 
 def process(orig, pos, lenght):
-    if pos > lenght:
+    end = (pos + lenght)%LENGHT
+    if pos > end:
         # Circular case
-        rev = orig[pos:] + orig[:lenght]
+        rev = orig[pos:] + orig[:end]
         rev.reverse()
-        orig = rev[lenght:] + orig[lenght:pos] + rev[:lenght]
-    elif pos == lenght:
-        # All selected
-        rev = orig[pos:] + orig[:lenght]
-        rev.reverse()
-        orig = rev[LENGHT-pos:] + rev[:LENGHT-pos]
+        orig = rev[lenght-end:] + orig[end:pos] + rev[:lenght-end]
     else:
         # Normal case
-        rev = orig[pos:lenght]
+        rev = orig[pos:end]
         rev.reverse()
-        orig = orig[:pos] + rev + orig[lenght:]
+        orig = orig[:pos] + rev + orig[end:]
     return orig
 
 if __name__ == "__main__":
