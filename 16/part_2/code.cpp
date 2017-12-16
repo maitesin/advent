@@ -37,22 +37,14 @@ struct Partner : public Action {
   char a, b;
 };
 
-std::string checksum(std::string_view progs) {
-  std::ostringstream oss;
-  std:copy(progs.begin(), progs.end(), std::ostream_iterator<char>(oss, ""));
-  return oss.str();
-}
-
 size_t find_cicle(std::string progs, const std::vector<std::unique_ptr<Action>> & actions) {
   size_t index = 1;
-  std::string orig_checksum = checksum(progs);
-  std::string current;
+  std::string original = progs;
   while (true) {
     for (auto && action : actions) {
       action->perform(progs);
     }
-    current = checksum(progs);
-    if (current == orig_checksum) return index;
+    if (progs == original) return index;
     ++index;
   }
 }
