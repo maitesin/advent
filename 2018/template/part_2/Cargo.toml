@@ -1,0 +1,6 @@
+[package]
+name = "part_2"
+version = "0.1.0"
+authors = ["maitesin"]
+
+[dependencies]
