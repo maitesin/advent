@@ -80,8 +80,8 @@ class Cable:
     def points(self):
         return self._points
 
-    def find_crosses(self, cable):
-        return set(self.points) & set(cable.points)
+    def __and__(self, other):
+        return set(self.points) & set(other.points)
 
     def __repr__(self):
         return f'Cable(steps={self._steps})'
@@ -92,7 +92,7 @@ def main(filename):
         cable1 = Cable(f.readline().split(','))
         cable2 = Cable(f.readline().split(','))
 
-        crosses = cable1.find_crosses(cable2)
+        crosses = cable1 & cable2
         smallest_distance = sys.maxsize
         for cross in crosses:
             distance = cross.manhattan_distance()
