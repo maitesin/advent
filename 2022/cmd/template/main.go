@@ -7,10 +7,10 @@ import (
 )
 
 func main() {
-	input1 := ""
+	input1 := ``
 	fmt.Printf("Task1: %q\n", Task1(io.NopCloser(strings.NewReader(input1))))
 
-	input2 := ""
+	input2 := ``
 	fmt.Printf("Task2: %q\n", Task2(io.NopCloser(strings.NewReader(input2))))
 }
 
