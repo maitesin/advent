@@ -1,8 +1,6 @@
 package main
 
 import (
-	"io"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -14,7 +12,7 @@ func TestTask1(t *testing.T) {
 	input := ``
 	expected := ""
 
-	output := Task1(io.NopCloser(strings.NewReader(input)))
+	output := Task1(input)
 	require.Equal(t, expected, output)
 }
 
@@ -24,6 +22,6 @@ func TestTask2(t *testing.T) {
 	input := ``
 	expected := ""
 
-	output := Task2(io.NopCloser(strings.NewReader(input)))
+	output := Task2(input)
 	require.Equal(t, expected, output)
 }
