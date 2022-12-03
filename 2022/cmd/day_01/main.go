@@ -27,7 +27,7 @@ func main() {
 }
 
 func Task1(input string) string {
-	elvesStrings := strings.Split(input, "\n\n")
+	elvesStrings := strings.Split(strings.Trim(input, "\n"), "\n\n")
 	elvesValues := make([]int, len(elvesStrings))
 
 	for i, elfString := range elvesStrings {
@@ -47,7 +47,7 @@ func Task1(input string) string {
 }
 
 func Task2(input string) string {
-	elvesStrings := strings.Split(input, "\n\n")
+	elvesStrings := strings.Split(strings.Trim(input, "\n"), "\n\n")
 	elvesValues := make([]int, len(elvesStrings))
 
 	for i, elfString := range elvesStrings {
