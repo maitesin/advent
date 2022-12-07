@@ -29,7 +29,7 @@ func Task1(input string) string {
 	lines := strings.Split(strings.Trim(input, "\n"), "\n")
 	rootDir := NewDir(nil)
 	dir := rootDir
-	for i :=0; i < len(lines); i++ {
+	for i := 0; i < len(lines); i++ {
 		switch {
 		case lines[i] == "$ cd /":
 			dir = rootDir
@@ -38,7 +38,7 @@ func Task1(input string) string {
 		case strings.HasPrefix(lines[i], "$ cd "):
 			dir = dir.SubDirs[lines[i][5:]]
 		case lines[i] == "$ ls":
-			for ;i<len(lines)-1; {
+			for i < len(lines)-1 {
 				i++
 				if strings.HasPrefix(lines[i], "$ ") {
 					i--
@@ -59,16 +59,56 @@ func Task1(input string) string {
 		}
 	}
 
+	found := map[*Dir]struct{}{}
+	rootDir.AtMost(100000, found)
 	accum := 0
-	for _, size := range rootDir.AtMost(1000000) {
-		accum += size
+	for d := range found {
+		accum += d.Size()
 	}
 
 	return fmt.Sprint(accum)
 }
 
 func Task2(input string) string {
-	return input
+	lines := strings.Split(strings.Trim(input, "\n"), "\n")
+	rootDir := NewDir(nil)
+	dir := rootDir
+	for i := 0; i < len(lines); i++ {
+		switch {
+		case lines[i] == "$ cd /":
+			dir = rootDir
+		case lines[i] == "$ cd ..":
+			dir = dir.ParentDir
+		case strings.HasPrefix(lines[i], "$ cd "):
+			dir = dir.SubDirs[lines[i][5:]]
+		case lines[i] == "$ ls":
+			for i < len(lines)-1 {
+				i++
+				if strings.HasPrefix(lines[i], "$ ") {
+					i--
+					break
+				}
+				parts := strings.Split(lines[i], " ")
+				switch parts[0] {
+				case "dir":
+					dir.SubDirs[parts[1]] = NewDir(dir)
+				default:
+					size, err := strconv.Atoi(parts[0])
+					if err != nil {
+						log.Panic(err)
+					}
+					dir.Files = append(dir.Files, File{Name: parts[1], Size: size})
+				}
+			}
+		}
+	}
+
+	max := 70000000
+	needed := 30000000
+	used := rootDir.Size()
+
+	threshold := -1 * (max - needed - used)
+	return fmt.Sprint(rootDir.NextBiggest(threshold, max))
 }
 
 type File struct {
@@ -77,8 +117,8 @@ type File struct {
 }
 
 type Dir struct {
-	SubDirs map[string]*Dir
-	Files []File
+	SubDirs   map[string]*Dir
+	Files     []File
 	ParentDir *Dir
 }
 
@@ -105,14 +145,30 @@ func (d *Dir) Size() int {
 	return subDirSizes + filesSize
 }
 
-func (d *Dir) AtMost(threshold int) []int {
-	var found []int
+func (d *Dir) AtMost(threshold int, found map[*Dir]struct{}) {
 	for _, sDir := range d.SubDirs {
 		if sDir.Size() <= threshold {
-			found = append(found, sDir.Size())
-			found = append(found, sDir.AtMost(threshold)...)
+			if _, ok := found[sDir]; !ok {
+				found[sDir] = struct{}{}
+			}
 		}
+		sDir.AtMost(threshold, found)
 	}
-	return found
 }
 
+func (d *Dir) NextBiggest(threshold int, current int) int {
+	for _, sDir := range d.SubDirs {
+		size := sDir.Size()
+		if size > threshold {
+			if size < current {
+				current = size
+			}
+		}
+		sub := sDir.NextBiggest(threshold, current)
+		if sub < current {
+			return sub
+		}
+	}
+
+	return current
+}
