@@ -9,19 +9,117 @@ import (
 func TestTask1(t *testing.T) {
 	t.Parallel()
 
-	input := ``
-	expected := ""
+	monkeys := []Monkey{
+		{
+			Items: []int{79, 98},
+			Operation: func(v int) int {
+				return v * 19
+			},
+			Test: func(v int) int {
+				if v%23 == 0 {
+					return 2
+				}
+				return 3
+			},
+		},
+		{
+			Items: []int{54, 65, 75, 74},
+			Operation: func(v int) int {
+				return v + 6
+			},
+			Test: func(v int) int {
+				if v%19 == 0 {
+					return 2
+				}
+				return 0
+			},
+		},
+		{
+			Items: []int{79, 60, 97},
+			Operation: func(v int) int {
+				return v * v
+			},
+			Test: func(v int) int {
+				if v%13 == 0 {
+					return 1
+				}
+				return 3
+			},
+		},
+		{
+			Items: []int{74},
+			Operation: func(v int) int {
+				return v + 3
+			},
+			Test: func(v int) int {
+				if v%17 == 0 {
+					return 0
+				}
+				return 1
+			},
+		},
+	}
+	expected := "10605"
 
-	output := Task1(input)
+	output := Task1(monkeys)
 	require.Equal(t, expected, output)
 }
 
 func TestTask2(t *testing.T) {
 	t.Parallel()
 
-	input := ``
-	expected := ""
+	monkeys := []Monkey{
+		{
+			Items: []int{79, 98},
+			Operation: func(v int) int {
+				return v * 19
+			},
+			Test: func(v int) int {
+				if v%23 == 0 {
+					return 2
+				}
+				return 3
+			},
+		},
+		{
+			Items: []int{54, 65, 75, 74},
+			Operation: func(v int) int {
+				return v + 6
+			},
+			Test: func(v int) int {
+				if v%19 == 0 {
+					return 2
+				}
+				return 0
+			},
+		},
+		{
+			Items: []int{79, 60, 97},
+			Operation: func(v int) int {
+				return v * v
+			},
+			Test: func(v int) int {
+				if v%13 == 0 {
+					return 1
+				}
+				return 3
+			},
+		},
+		{
+			Items: []int{74},
+			Operation: func(v int) int {
+				return v + 3
+			},
+			Test: func(v int) int {
+				if v%17 == 0 {
+					return 0
+				}
+				return 1
+			},
+		},
+	}
+	expected := "2713310158"
 
-	output := Task2(input)
+	output := Task2(monkeys)
 	require.Equal(t, expected, output)
 }
