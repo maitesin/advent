@@ -31,6 +31,7 @@ func Task1(input string) string {
 	S := Point{0, 0, 0}
 	E := Point{0, 0, 0}
 	m := make([][]Point, len(rows))
+	stepsG := make(map[Point]int, len(rows)*len(rows[0]))
 
 	for i, row := range rows {
 		m[i] = make([]Point, len(row))
@@ -39,66 +40,71 @@ func Task1(input string) string {
 			case 'S':
 				S = Point{i, j, 'a'}
 				m[i][j] = S
+				stepsG[S] = 0
 			case 'E':
 				E = Point{i, j, 'z'}
 				m[i][j] = E
+				stepsG[E] = math.MaxInt
 			default:
-				m[i][j] = Point{i, j, height}
+				p := Point{i, j, height}
+				m[i][j] = p
+				stepsG[p] = math.MaxInt
 			}
 		}
 	}
 
-	paths := []Path{
-		NewPath(S, E, map[Point]struct{}{}, 0),
-	}
-
-	for {
-		sort.SliceStable(paths, func(i, j int) bool {
-			return paths[i].Priority() < paths[j].Priority()
-		})
-
-		if len(paths) == 0 {
-			log.Panic("You ran out of paths to explore")
-		}
-		p := paths[0]
-		paths = paths[1:]
-
-		if p.IsEnd() {
-			return fmt.Sprint(p.Steps)
-		}
-
-		if p.Current.X > 0 {
-			np := m[p.Current.X-1][p.Current.Y]
-			if _, ok := p.Visited[np]; !ok && p.Current.StepSize(np) <= 1 {
-				paths = append(paths, NewPath(np, E, p.Visited, p.Steps+1))
-			}
-		}
-		if p.Current.Y > 0 {
-			np := m[p.Current.X][p.Current.Y-1]
-			if _, ok := p.Visited[np]; !ok && p.Current.StepSize(np) <= 1 {
-				paths = append(paths, NewPath(np, E, p.Visited, p.Steps+1))
-			}
-		}
-		if p.Current.X < len(m)-1 {
-			np := m[p.Current.X+1][p.Current.Y]
-			if _, ok := p.Visited[np]; !ok && p.Current.StepSize(np) <= 1 {
-				paths = append(paths, NewPath(np, E, p.Visited, p.Steps+1))
-			}
-		}
-		if p.Current.Y < len(m[0])-1 {
-			np := m[p.Current.X][p.Current.Y+1]
-			if _, ok := p.Visited[np]; !ok && p.Current.StepSize(np) <= 1 {
-				paths = append(paths, NewPath(np, E, p.Visited, p.Steps+1))
-			}
-		}
-	}
-
-	log.Panic("You should not see this message")
-	return ""
+	return fmt.Sprint(dijkstra(stepsG, S, E, m, math.MaxInt))
 }
 
 func Task2(input string) string {
-	return input
+	rows := strings.Split(strings.Trim(input, "\n"), "\n")
+	S := Point{0, 0, 0}
+	E := Point{0, 0, 0}
+	m := make([][]Point, len(rows))
+	stepsG := make(map[Point]int, len(rows)*len(rows[0]))
+	var startingPoints []Point
+	for i, row := range rows {
+		m[i] = make([]Point, len(row))
+		for j, height := range row {
+			switch height {
+			case 'a':
+				p := Point{i, j, height}
+				m[i][j] = p
+				stepsG[p] = math.MaxInt
+				startingPoints = append(startingPoints, p)
+			case 'S':
+				S = Point{i, j, 'a'}
+				m[i][j] = S
+				stepsG[S] = math.MaxInt
+			case 'E':
+				E = Point{i, j, 'z'}
+				m[i][j] = E
+				stepsG[E] = math.MaxInt
+			default:
+				p := Point{i, j, height}
+				m[i][j] = p
+				stepsG[p] = math.MaxInt
+			}
+		}
+	}
+
+	copySteps := make(map[Point]int, len(stepsG))
+	for key := range stepsG {
+		copySteps[key] = stepsG[key]
+	}
+	cutValue := dijkstra(copySteps, S, E, m, math.MaxInt)
+	for i := range startingPoints {
+		copySteps = make(map[Point]int, len(stepsG))
+		for key := range stepsG {
+			copySteps[key] = stepsG[key]
+		}
+		v := dijkstra(copySteps, startingPoints[i], E, m, cutValue)
+		if v < cutValue {
+			cutValue = v
+		}
+	}
+
+	return fmt.Sprint(cutValue)
 }
 
 type Point struct {
@@ -106,47 +112,60 @@ type Point struct {
 	Value rune
 }
 
-func (p Point) Distance(p2 Point) float64 {
-	x := p.X - p2.X
-	y := p.Y - p2.Y
-	return math.Sqrt(float64(x*x + y*y))
-}
-
 func (p Point) StepSize(p2 Point) rune {
-	if p.Value < p2.Value {
-		return p2.Value - p.Value
+	return p2.Value - p.Value
+}
+
+func dijkstra(stepsG map[Point]int, S, E Point, m [][]Point, cutValue int) int {
+	stepsG[S] = 0
+
+	for {
+		keys := make([]Point, 0, len(stepsG))
+
+		for key := range stepsG {
+			keys = append(keys, key)
+		}
+
+		sort.SliceStable(keys, func(i, j int) bool {
+			return stepsG[keys[i]] < stepsG[keys[j]]
+		})
+
+		if len(stepsG) == 0 {
+			log.Panic("You ran out of paths to explore")
+		}
+		p := keys[0]
+		if p == E {
+			return stepsG[E]
+		}
+		if stepsG[p] >= cutValue {
+			return math.MaxInt
+		}
+
+		if p.X > 0 {
+			np := m[p.X-1][p.Y]
+			if p.StepSize(np) <= 1 && stepsG[np] >= stepsG[p]+1 {
+				stepsG[np] = stepsG[p] + 1
+			}
+		}
+		if p.Y > 0 {
+			np := m[p.X][p.Y-1]
+			if p.StepSize(np) <= 1 && stepsG[np] >= stepsG[p]+1 {
+				stepsG[np] = stepsG[p] + 1
+			}
+		}
+		if p.X < len(m)-1 {
+			np := m[p.X+1][p.Y]
+			if p.StepSize(np) <= 1 && stepsG[np] >= stepsG[p]+1 {
+				stepsG[np] = stepsG[p] + 1
+			}
+		}
+		if p.Y < len(m[0])-1 {
+			np := m[p.X][p.Y+1]
+			if p.StepSize(np) <= 1 && stepsG[np] >= stepsG[p]+1 {
+				stepsG[np] = stepsG[p] + 1
+			}
+		}
+		delete(stepsG, keys[0])
 	}
-
-	return p.Value - p2.Value
-}
-
-type Path struct {
-	Steps   int
-	End     Point
-	Current Point
-	Visited map[Point]struct{}
-}
-
-func NewPath(c, e Point, visited map[Point]struct{}, steps int) Path {
-	p := Path{
-		Steps:   steps,
-		End:     e,
-		Current: c,
-	}
-
-	p.Visited = make(map[Point]struct{}, len(visited)+1)
-	p.Visited[c] = struct{}{}
-	for key := range visited {
-		p.Visited[key] = visited[key]
-	}
-
-	return p
-}
-
-func (p Path) Priority() float64 {
-	return p.Current.Distance(p.End)
-}
-
-func (p Path) IsEnd() bool {
-	return p.Current == p.End
+	return math.MaxInt
 }

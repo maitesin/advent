@@ -23,8 +23,12 @@ abdefghi`
 func TestTask2(t *testing.T) {
 	t.Parallel()
 
-	input := ``
-	expected := ""
+	input := `Sabqponm
+abcryxxl
+accszExk
+acctuvwj
+abdefghi`
+	expected := "29"
 
 	output := Task2(input)
 	require.Equal(t, expected, output)
