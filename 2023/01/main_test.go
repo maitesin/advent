@@ -8,12 +8,11 @@ func TestTask1(t *testing.T) {
 		want  string
 	}{
 		{
-			input: "abcdef",
-			want:  "609043",
-		},
-		{
-			input: "pqrstuv",
-			want:  "1048970",
+			input: `1abc2
+pqr3stu8vwx
+a1b2c3d4e5f
+treb7uchet`,
+			want: "142",
 		},
 	}
 	for _, tt := range tests {
@@ -32,16 +31,14 @@ func TestTask2(t *testing.T) {
 		want  string
 	}{
 		{
-			input: "^v",
-			want:  "3",
-		},
-		{
-			input: "^>v<",
-			want:  "3",
-		},
-		{
-			input: "^v^v^v^v^v",
-			want:  "11",
+			input: `two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen`,
+			want: "281",
 		},
 	}
 	for _, tt := range tests {
