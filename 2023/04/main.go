@@ -31,13 +31,6 @@ type card struct {
 	Values map[int]struct{}
 }
 
-func NewCard() card {
-	return card{
-		Winner: map[int]struct{}{},
-		Values: map[int]struct{}{},
-	}
-}
-
 func Task1(input string) string {
 	cards := parseCards(strings.Split(input, "\n"))
 	accum := 0
