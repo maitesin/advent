@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"log"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -39,6 +40,16 @@ func (m mm) Find(item int) int {
 		if r.Source <= item && item <= r.Source+r.Range-1 {
 			offset := item - r.Source
 			return r.Dest + offset
+		}
+	}
+	return item
+}
+
+func (m mm) ReverseFind(item int) int {
+	for _, r := range m {
+		if r.Dest <= item && item <= r.Dest+r.Range-1 {
+			offset := item - r.Dest
+			return r.Source + offset
 		}
 	}
 	return item
@@ -97,7 +108,7 @@ func readSeeds(line string) []int {
 func readBlock(block string) (string, mm) {
 	lines := strings.Split(block, "\n")
 	name := strings.Split(lines[0], " ")
-	m := make(mm, len(lines))
+	m := mm{}
 
 	for i := 1; i < len(lines); i++ {
 		parts := strings.Split(lines[i], " ")
@@ -120,5 +131,45 @@ func readBlock(block string) (string, mm) {
 }
 
 func Task2(input string) string {
+	blocks := strings.Split(input, "\n\n")
+	seeds := readSeeds(blocks[0])
+	_ = seeds
+
+	planning := map[string]mm{}
+	for i := 1; i < len(blocks); i++ {
+		name, m := readBlock(blocks[i])
+		planning[name] = m
+	}
+
+	lookUpOrder := []string{
+		"humidity-to-location",
+		"temperature-to-humidity",
+		"light-to-temperature",
+		"water-to-light",
+		"fertilizer-to-water",
+		"soil-to-fertilizer",
+		"seed-to-soil",
+	}
+
+	for i := 0; i < math.MaxInt; i++ {
+		item := i
+		for _, lookUp := range lookUpOrder {
+			step := planning[lookUp]
+			item = step.ReverseFind(item)
+		}
+		if isWithinSeedRange(seeds, item) {
+			return fmt.Sprint(i)
+		}
+	}
+
 	return input
+}
+
+func isWithinSeedRange(seeds []int, item int) bool {
+	for i := 0; i < len(seeds); i += 2 {
+		if seeds[i] <= item && item <= seeds[i]+seeds[i+1]-1 {
+			return true
+		}
+	}
+	return false
 }
